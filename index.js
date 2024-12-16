@@ -77,10 +77,12 @@ async function run() {
       res.send({token})
     });
     const verifyToken=(req,res,next)=>{
+      console.log(req?.headers,'sdfsdheaders')
       if (!req.headers.authorization) {
         return res.status(401).send({message:'forbidden access'})
       }
       const token=req.headers.authorization.split(' ')[1];
+      console.log('verifytoken',token)
       jwt.verify(token,process.env.ACCESS_TOKEN_SECCODE,(err,decoded)=>{
         if (err) {
           return res.status(401).send({message:'forbidden access'})
@@ -261,15 +263,18 @@ async function run() {
     });
     app.get('/users/admin/:email',verifyToken,async(req,res)=>{
       const email=req.params.email;
-      if (email !==req.decoded.email) {
+      console.log(email,'userEmail')
+      if (email !==req?.decoded?.email) {
        return res.status(403).send({message:'unauthorized access'}) 
       }
       const query={email:email};
       const user=await usersCollection.findOne(query);
       let admin=false;
       if (user) {
+        console.log(user,'check Admin')
         admin=user?.role==='admin'
       }
+      console.log(admin,'admin chec')
       res.send({admin})
     });
     app.patch('/users/admin/:id',verifyToken,verifyAdmin, async(req,res)=>{
